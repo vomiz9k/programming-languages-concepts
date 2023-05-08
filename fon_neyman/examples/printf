@@ -1,0 +1,110 @@
+mov chr[8],  '%'
+mov chr[9],  'c'
+mov chr[10], '%'
+mov chr[11], 'd'
+mov chr[12], 'a'
+mov chr[13], ' '
+mov chr[14], '%'
+mov chr[15], 'd'
+mov chr[16], '%'
+mov chr[17], '%'
+mov chr[18], 10
+mov chr[19], 0
+
+
+push 0
+push 228
+push 'x'
+push 8
+
+call :printf
+
+jmp :end
+
+printf:
+pop rax
+pop rbx
+
+printf_loop:
+
+cmp chr[rbx], 0
+je :printf_end
+
+cmp chr[rbx], '%'
+je :process_percent
+
+out chr[rbx]
+
+continue:
+
+add rbx, 1
+jmp :printf_loop
+
+printf_end:
+push rax
+ret
+
+
+process_percent:
+add rbx, 1
+
+cmp chr[rbx], 'd'
+je :process_int
+
+cmp chr[rbx], 's'
+je :process_str
+
+cmp chr[rbx], 'c'
+je :process_chr
+
+cmp chr[rbx], '%'
+out '%'
+
+jmp :continue
+
+
+process_int:
+pop rcx
+
+mov rsi, 0
+loop_int:
+mov rdx, rcx
+div rcx, 10
+mul rcx, 10
+sub rdx, rcx
+push rdx
+add rsi, 1
+div rcx, 10
+cmp rcx, 0
+je :print_digits
+jmp :loop_int
+
+print_digits:
+pop rcx
+mov chr[1], rcx
+add chr[1], '0'
+out chr[1]
+sub rsi, 1
+cmp rsi, 0
+je :continue
+jmp :print_digits
+
+
+process_str:
+pop rcx
+
+str_loop:
+cmp chr[rcx], 0
+je :continue
+out chr[rcx]
+add rcx, 1
+jmp :str_loop
+
+
+process_chr:
+pop rcx
+out rcx
+jmp :continue
+
+
+end:

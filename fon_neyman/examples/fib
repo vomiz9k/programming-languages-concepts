@@ -1,0 +1,195 @@
+mov chr[15], 'T'
+mov chr[16], 'h'
+mov chr[17], 'i'
+mov chr[18], 's'
+mov chr[19], ' '
+mov chr[20], 'p'
+mov chr[21], 'r'
+mov chr[22], 'o'
+mov chr[23], 'g'
+mov chr[24], 'r'
+mov chr[25], 'a'
+mov chr[26], 'm'
+mov chr[27], ' '
+mov chr[28], 'c'
+mov chr[29], 'a'
+mov chr[30], 'l'
+mov chr[31], 'c'
+mov chr[32], 'u'
+mov chr[33], 'l'
+mov chr[34], 'a'
+mov chr[35], 't'
+mov chr[36], 'e'
+mov chr[37], 's'
+mov chr[38], ' '
+mov chr[39], 'N'
+mov chr[40], 't'
+mov chr[41], 'h'
+mov chr[42], ' '
+mov chr[43], 'F'
+mov chr[44], 'i'
+mov chr[45], 'b'
+mov chr[46], 'o'
+mov chr[47], 'n'
+mov chr[48], 'a'
+mov chr[49], 'c'
+mov chr[50], 'c'
+mov chr[51], 'i'
+mov chr[52], ' '
+mov chr[53], 'n'
+mov chr[54], 'u'
+mov chr[55], 'm'
+mov chr[56], 'b'
+mov chr[57], 'e'
+mov chr[58], 'r'
+mov chr[59], '.'
+mov chr[60], ' '
+mov chr[61], 'I'
+mov chr[62], 'n'
+mov chr[63], 'p'
+mov chr[64], 'u'
+mov chr[65], 't'
+mov chr[66], ' '
+mov chr[67], 'N'
+mov chr[68], ':'
+mov chr[69], 10
+mov chr[70], 0
+push 15
+call :printf
+
+in rax
+call :fib
+
+mov chr[15], '%'
+mov chr[16], 'd'
+mov chr[17], 10
+mov chr[18], 0
+push rbx
+push 15
+call :printf
+jmp :end
+
+
+fib:
+cmp rax, 0
+je :nonrecursive_0
+cmp rax, 1
+je :nonrecursive_1
+
+
+sub rax, 1
+push rax
+call :fib
+
+pop rax
+sub rax, 1
+
+push rbx
+call :fib
+pop rcx
+add rbx, rcx
+ret
+
+nonrecursive_0:
+mov rbx, 0
+ret
+
+nonrecursive_1:
+mov rbx, 1
+ret
+
+
+
+
+
+printf:
+pop rax
+pop rbx
+
+printf_loop:
+
+cmp chr[rbx], 0
+metka:
+je :printf_end
+
+cmp chr[rbx], '%'
+je :process_percent
+
+out chr[rbx]
+
+continue:
+
+add rbx, 1
+jmp :printf_loop
+
+printf_end:
+push rax
+ret
+
+
+process_percent:
+add rbx, 1
+
+cmp chr[rbx], 'd'
+je :process_int
+
+cmp chr[rbx], 's'
+je :process_str
+
+cmp chr[rbx], 'c'
+je :process_chr
+
+cmp chr[rbx], '%'
+out '%'
+
+jmp :continue
+
+
+process_int:
+pop rcx
+
+mov rsi, 0
+loop_int:
+mov rdx, rcx
+div rcx, 10
+mul rcx, 10
+sub rdx, rcx
+push rdx
+add rsi, 1
+div rcx, 10
+cmp rcx, 0
+je :print_digits
+jmp :loop_int
+
+print_digits:
+pop rcx
+mov chr[1], rcx
+add chr[1], '0'
+out chr[1]
+sub rsi, 1
+cmp rsi, 0
+je :continue
+jmp :print_digits
+
+
+process_str:
+pop rcx
+
+str_loop:
+cmp chr[rcx], 0
+je :continue
+out chr[rcx]
+add rcx, 1
+jmp :str_loop
+
+
+process_chr:
+pop rcx
+out rcx
+jmp :continue
+
+
+
+
+
+end:

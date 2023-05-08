@@ -69,34 +69,21 @@ void processCmp(InterpreterState& state) {
     state.stack.push(arg1 - arg2);
 }
 
-void processJe(InterpreterState& state) {
-    assert (Config::arg_types.at("label") == state.readByte());
-
-    auto value = state.stack.top();
-    state.stack.pop();
-
-    if (value == 0) {
-        state.currPosition() = state.readNumber();
-    } else {
-        state.readNumber();
-    }
-}
+#define processCondJmp(state, OP) {                                 \
+    assert (Config::arg_types.at("label") == state.readByte());     \
+                                                                    \
+    auto value = state.stack.top();                                 \
+    state.stack.pop();                                              \
+                                                                    \
+    if (value OP 0) {                                               \
+        state.currPosition() = state.readNumber();                  \
+    } else {                                                        \
+        state.readNumber();                                         \
+    }                                                               \
+}                                                                   \
 
 void processLabel(InterpreterState& state) {
     state.readString();
-}
-
-void processJg(InterpreterState& state) {
-    assert (Config::arg_types.at("label") == state.readByte());
-
-    auto value = state.stack.top();
-    state.stack.pop();
-
-    if (value > 0) {
-        state.currPosition() = state.readNumber();
-    } else {
-        state.readNumber();
-    }
 }
 
 void processIn(InterpreterState& state) {
@@ -142,9 +129,9 @@ void processCommand(InterpreterState& state) {
     } else if (command == "jmp") {
         processJmp(state);
     } else if (command == "je") {
-        processJe(state);
+        processCondJmp(state, ==);
     } else if (command == "jg") {
-        processJg(state);
+        processCondJmp(state, >);
     } else if (command == "cmp") {
         processCmp(state);
     } else if (command == "in") {
